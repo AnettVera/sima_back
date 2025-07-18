@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @SecurityScheme(name = "bearerAuth",  type = SecuritySchemeType.HTTP,
         scheme = "bearer",
-        bearerFormat = "JWT")
+        bearerFormat = "jwt")
 
 public class SwaggerSecurity {
 }

@@ -1,4 +1,4 @@
-package mx.edu.utez.sima.Security.JWT;
+package mx.edu.utez.sima.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

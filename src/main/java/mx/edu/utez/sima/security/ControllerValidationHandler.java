@@ -1,6 +1,6 @@
-package mx.edu.utez.sima.Security;
+package mx.edu.utez.sima.security;
 
-import mx.edu.utez.sima.Util.APIResponse;
+import mx.edu.utez.sima.utils.APIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

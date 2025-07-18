@@ -1,4 +1,4 @@
-package mx.edu.utez.sima.Util;
+package mx.edu.utez.sima.utils;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -12,4 +12,9 @@ public class PasswordEncoder {
     public static boolean verifyPassword(String rawPassword, String encodedPassword) {
         return encoder.matches(rawPassword, encodedPassword);
     }
+
+    public static void main(String[] args) {
+        System.out.println(encodePassword("leo123"));
+    }
+
 }

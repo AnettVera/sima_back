@@ -1,4 +1,4 @@
-package mx.edu.utez.sima.Security.JWT;
+package mx.edu.utez.sima.security.jwt;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

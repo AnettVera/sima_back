@@ -2,7 +2,7 @@ package mx.edu.utez.sima.modules.rol;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import mx.edu.utez.sima.modules.user.User;
+import mx.edu.utez.sima.modules.user.BeanUser;
 
 import java.util.List;
 
@@ -20,15 +20,15 @@ public class Rol {
 
     @OneToMany(mappedBy = "rol")
     @JsonIgnore
-    private List<User> user;
+    private List<BeanUser> beanUsers;
 
     public Rol() {
     }
 
-    public Rol(Long id, String name, List<User> user) {
+    public Rol(Long id, String name, List<BeanUser> beanUser) {
         this.id = id;
         this.name = name;
-        this.user = user;
+        this.beanUsers = beanUser;
     }
 
     public Long getId() {
@@ -47,11 +47,11 @@ public class Rol {
         this.name = name;
     }
 
-    public List<User> getUser() {
-        return user;
+    public List<BeanUser> getUser() {
+        return beanUsers;
     }
 
-    public void setUser(List<User> user) {
-        this.user = user;
+    public void setUser(List<BeanUser> beanUser) {
+        this.beanUsers = beanUser;
     }
 }

@@ -1,7 +1,7 @@
-package mx.edu.utez.sima.Security;
+package mx.edu.utez.sima.security;
 
-import mx.edu.utez.sima.Security.Filter.JwtAuthenticationFilter;
-import mx.edu.utez.sima.Security.JWT.JwtAuthenticationEntryPoint;
+import mx.edu.utez.sima.security.filter.JwtAuthenticationFilter;
+import mx.edu.utez.sima.security.jwt.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -65,7 +65,6 @@ public class MainSecurity {
                         // Rutas protegidas por rol
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
-                        .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
                         // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
                 )

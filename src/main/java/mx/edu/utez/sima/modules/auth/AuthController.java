@@ -1,8 +1,8 @@
 package mx.edu.utez.sima.modules.auth;
 
-import mx.edu.utez.sima.Util.APIResponse;
+import mx.edu.utez.sima.utils.APIResponse;
 import mx.edu.utez.sima.modules.auth.dto.LoginRequestDto;
-import mx.edu.utez.sima.modules.user.User;
+import mx.edu.utez.sima.modules.user.BeanUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +25,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<APIResponse> doRegister(@RequestBody User payload){
+    public ResponseEntity<APIResponse> doRegister(@RequestBody BeanUser payload){
         APIResponse response = authService.register(payload);
         return new ResponseEntity<>(response, response.getStatus());
     }
