@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "user")
-public class BeanUser implements UserDetails {
+public class BeanUser{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,6 +61,7 @@ public class BeanUser implements UserDetails {
             uuid = UUID.randomUUID().toString();
         }
     }
+
     public BeanUser() {
     }
 
@@ -155,12 +156,8 @@ public class BeanUser implements UserDetails {
         this.id = id;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (rol != null && rol.getName() != null) {
-            return List.of(new SimpleGrantedAuthority("ROLE_" + rol.getName()));
-        }
-        return List.of(new SimpleGrantedAuthority("ROLE_USER")); // rol por defecto
+    public String getUsername() {
+        return username;
     }
 
     public String getPassword() {
@@ -170,30 +167,4 @@ public class BeanUser implements UserDetails {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-
 }
