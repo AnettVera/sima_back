@@ -1,12 +1,12 @@
 package mx.edu.utez.sima.modules.auth.dto;
 
-public class LoginRequestDTO {
+public class LoginRequestDto {
     private String username, password;
 
-    public LoginRequestDTO() {
+    public LoginRequestDto() {
     }
 
-    public LoginRequestDTO(String username, String password) {
+    public LoginRequestDto(String username, String password) {
         this.username = username;
         this.password = password;
     }
@@ -26,4 +26,5 @@ public class LoginRequestDTO {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }

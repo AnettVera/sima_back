@@ -4,18 +4,25 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import mx.edu.utez.sima.modules.rol.Rol;
 import mx.edu.utez.sima.modules.storage.Storage;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+
 @Entity
 @Table(name = "user")
-public class BeanUser {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "uuid", nullable = false, unique = true)
+    @Column(name = "uuid", unique = true)
     private String uuid;
 
     @Column(name = "username", nullable = false, unique = true, length = 50)
@@ -39,7 +46,7 @@ public class BeanUser {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Rol rol;
 
@@ -50,11 +57,14 @@ public class BeanUser {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        if (uuid == null || uuid.isEmpty()) {
+            uuid = UUID.randomUUID().toString();
+        }
     }
-    public BeanUser() {
+    public User() {
     }
 
-    public BeanUser(Long id, String uuid, String username, String password, String name,String lastName, String email, Boolean active, LocalDateTime createdAt, Rol rol, Storage storage) {
+    public User(Long id, String uuid, String username, String password, String name, String lastName, String email, Boolean active, LocalDateTime createdAt, Rol rol, Storage storage) {
         this.id = id;
         this.uuid = uuid;
         this.username = username;
@@ -125,18 +135,6 @@ public class BeanUser {
         this.lastName = lastName;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -156,4 +154,46 @@ public class BeanUser {
     public void setId(Long id) {
         this.id = id;
     }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (rol != null && rol.getName() != null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_" + rol.getName()));
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_USER")); // rol por defecto
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+
 }

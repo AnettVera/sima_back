@@ -1,102 +1,73 @@
 package mx.edu.utez.sima.modules.auth;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import mx.edu.utez.sima.Security.CustomUserDetailsService;
+import mx.edu.utez.sima.Security.JWT.JwtService;
+import mx.edu.utez.sima.Util.APIResponse;
+import mx.edu.utez.sima.Util.PasswordEncoder;
+import mx.edu.utez.sima.modules.auth.dto.LoginRequestDto;
+import mx.edu.utez.sima.modules.user.User;
+import mx.edu.utez.sima.modules.user.UserRepository;
+import mx.edu.utez.sima.modules.rol.RolRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import mx.edu.utez.sima.modules.auth.dto.LoginRequestDTO;
-import mx.edu.utez.sima.modules.user.BeanUser;
-import mx.edu.utez.sima.modules.user.UserRpository;
-import mx.edu.utez.sima.security.jwt.JWTUtils;
-import mx.edu.utez.sima.security.jwt.UDService;
-import mx.edu.utez.sima.utils.APIResponse;
-import mx.edu.utez.sima.utils.PasswordEncoder;
-
-import java.sql.SQLException;
 
 @Service
 public class AuthService {
-    @Autowired
-    private UserRpository userRpository;
+    private JwtService jwtService;
+    private UserRepository userRepository;
+    private CustomUserDetailsService customUserDetailsService;
 
-    @Autowired
-    private UDService udService;
-
-    @Autowired
-    private JWTUtils jwtUtils;
+    public AuthService(JwtService jwtService, UserRepository userRepository, CustomUserDetailsService customUserDetailsService) {
+        this.jwtService = jwtService;
+        this.userRepository = userRepository;
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @Transactional(readOnly = true)
-    public APIResponse doLogin(LoginRequestDTO payload){
-
-
+    public APIResponse login(LoginRequestDto login) {
         try {
-            BeanUser found = userRpository.findByUsername(payload.getUsername())
-                    .orElse(null);
+            User user = userRepository.findByUsername(login.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-            if (!PasswordEncoder.verifyPassword(payload.getPassword(), found.getPassword())){
-                return new APIResponse(
-                        "Usuario o contraseña incorrectos",
-                        true,
-                        HttpStatus.NOT_FOUND
-                );
-            }
-            if (found == null){
-                return new APIResponse(
-                        "Usuario o contraseña incorrectos",
-                        true,
-                        HttpStatus.NOT_FOUND
-                );
+            if (!PasswordEncoder.verifyPassword(login.getPassword(), user.getPassword())) {
+                return new APIResponse("Usuario o contraseña incorrectos", true, HttpStatus.UNAUTHORIZED);
             }
 
-            UserDetails ud = udService.loadUserByUsername(found.getUsername());
-            String token = jwtUtils.generateToken(ud);
-            return new APIResponse(
-                    "Inicio de sesión exitoso",
-                    token,
-                    false,
-                    HttpStatus.OK
-            );
-
-        } catch (Exception ex){
-            ex.printStackTrace();
-            return new APIResponse(
-                    "Error al iniciar sesion",
-                    true,
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            );
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+            String token = jwtService.generateToken(userDetails);
+            return new APIResponse("Inicio de sesión exitoso", token, false, HttpStatus.OK);
+        } catch (Exception e) {
+            return new APIResponse("Error en el inicio de sesión: " + e.getMessage(), true, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @Transactional(rollbackFor = {SQLException.class, Exception.class, Exception.class})
-    public APIResponse register(BeanUser payload) {
+    @Transactional
+    public APIResponse register(User user) {
         try {
-          BeanUser found = userRpository.findByUsername(payload.getUsername())
-                  .orElse(null);
-
-            if (found != null) {
-                return new APIResponse(
-                        "El usuario ya existe",
-                        true,
-                        HttpStatus.CONFLICT
-                );
+            if (userRepository.existsByUsername(user.getUsername())) {
+                return new APIResponse("El nombre de usuario ya está en uso", true, HttpStatus.CONFLICT);
+            }
+            
+            if (userRepository.existsByEmail(user.getEmail())) {
+                return new APIResponse("El email ya está en uso", true, HttpStatus.CONFLICT);
             }
 
-            payload.setPassword(PasswordEncoder.encodePassword(payload.getPassword()));
-            BeanUser saved = userRpository.save(payload);
-            return new APIResponse(
-                    "Usuario registrado exitosamente",
-                    saved,
-                    false,
-                    HttpStatus.CREATED
-            );
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return new APIResponse(
-                    "Error al registrar el usuario",
-                    true,
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            );
+            if (user.getRol() == null) {
+                return new APIResponse("El rol es requerido", true, HttpStatus.BAD_REQUEST);
+            }
+
+
+            user.setPassword(PasswordEncoder.encodePassword(user.getPassword()));
+            User savedUser = userRepository.save(user);
+            
+            User userWithFullData = userRepository.findById(savedUser.getId())
+                    .orElse(savedUser);
+            
+            return new APIResponse("Registro exitoso", userWithFullData, false, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new APIResponse("Registro fallido: " + e.getMessage(), true, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
