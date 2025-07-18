@@ -1,5 +1,9 @@
 package mx.edu.utez.sima.modules.auth;
 
+import mx.edu.utez.sima.modules.auth.dto.RegisterRequestDto;
+import mx.edu.utez.sima.modules.auth.dto.UserResponseDto;
+import mx.edu.utez.sima.modules.rol.Rol;
+import mx.edu.utez.sima.modules.rol.RolRepository;
 import mx.edu.utez.sima.modules.user.BeanUser;
 import mx.edu.utez.sima.security.CustomUserDetailsService;
 import mx.edu.utez.sima.security.jwt.JwtService;
@@ -17,11 +21,13 @@ public class AuthService {
     private JwtService jwtService;
     private UserRepository userRepository;
     private CustomUserDetailsService customUserDetailsService;
+    private RolRepository rolRepository;
 
-    public AuthService(JwtService jwtService, UserRepository userRepository, CustomUserDetailsService customUserDetailsService) {
+    public AuthService(JwtService jwtService, UserRepository userRepository, CustomUserDetailsService customUserDetailsService, RolRepository rolRepository) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.customUserDetailsService = customUserDetailsService;
+        this.rolRepository = rolRepository;
     }
 
     @Transactional(readOnly = true)
@@ -43,28 +49,40 @@ public class AuthService {
     }
 
     @Transactional
-    public APIResponse register(BeanUser beanUser) {
+    public APIResponse register(RegisterRequestDto registerDto) {
         try {
-            if (userRepository.existsByUsername(beanUser.getUsername())) {
+            if (userRepository.existsByUsername(registerDto.getUsername())) {
                 return new APIResponse("El nombre de usuario ya está en uso", true, HttpStatus.CONFLICT);
             }
-            
-            if (userRepository.existsByEmail(beanUser.getEmail())) {
+
+            if (userRepository.existsByEmail(registerDto.getEmail())) {
                 return new APIResponse("El email ya está en uso", true, HttpStatus.CONFLICT);
             }
 
-            if (beanUser.getRol() == null) {
-                return new APIResponse("El rol es requerido", true, HttpStatus.BAD_REQUEST);
+            Rol rol = rolRepository.findById(registerDto.getRoleId())
+                    .orElse(null);
+
+            if (rol == null) {
+                return new APIResponse("El rol especificado no existe", true, HttpStatus.BAD_REQUEST);
             }
 
+            BeanUser user = new BeanUser();
+            user.setUsername(registerDto.getUsername());
+            user.setPassword(PasswordEncoder.encodePassword(registerDto.getPassword()));
+            user.setName(registerDto.getName());
+            user.setLastName(registerDto.getLastName());
+            user.setEmail(registerDto.getEmail());
+            user.setRol(rol);
+            user.setActive(true);
 
-            beanUser.setPassword(PasswordEncoder.encodePassword(beanUser.getPassword()));
-            BeanUser savedBeanUser = userRepository.save(beanUser);
-            
-            BeanUser beanUserWithFullData = userRepository.findById(savedBeanUser.getId())
-                    .orElse(savedBeanUser);
-            
-            return new APIResponse("Registro exitoso", beanUserWithFullData, false, HttpStatus.CREATED);
+            BeanUser savedUser = userRepository.save(user);
+
+            BeanUser userWithFullData = userRepository.findById(savedUser.getId())
+                    .orElse(savedUser);
+
+            UserResponseDto userResponse = new UserResponseDto(userWithFullData);
+
+            return new APIResponse("Registro exitoso", userResponse, false, HttpStatus.CREATED);
         } catch (Exception e) {
             return new APIResponse("Registro fallido: " + e.getMessage(), true, HttpStatus.INTERNAL_SERVER_ERROR);
         }

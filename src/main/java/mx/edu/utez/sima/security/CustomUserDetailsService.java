@@ -24,23 +24,17 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Buscar primero al usuario
-        BeanUser found = userRepository.findByUsername(username).orElse(null);
-        if (found == null) {
-            throw new UsernameNotFoundException("Usuario no encontrado");
-        }
+        BeanUser user =  userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
-        // Generar las autoridades para el contexto de seguridad
-        // Autoridades = Roles
-        // authority = ROLE_ADMIN, ROLE_EMPLOYEE, ROLE_DEV -> filterChain
-        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + found.getRol().getName());
+        GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_" + user.getRol().getName());
 
-        // Retornar el objeto de usuario para registrar en el contexto de seguridad
-        return new User(
-                found.getUsername(),
-                found.getPassword(),
-                Collections.singleton(authority)
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                Collections.singleton(auth)
         );
     }
 }

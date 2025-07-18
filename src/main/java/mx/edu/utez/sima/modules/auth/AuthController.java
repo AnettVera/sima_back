@@ -1,5 +1,6 @@
 package mx.edu.utez.sima.modules.auth;
 
+import mx.edu.utez.sima.modules.auth.dto.RegisterRequestDto;
 import mx.edu.utez.sima.utils.APIResponse;
 import mx.edu.utez.sima.modules.auth.dto.LoginRequestDto;
 import mx.edu.utez.sima.modules.user.BeanUser;
@@ -25,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<APIResponse> doRegister(@RequestBody BeanUser payload){
+    public ResponseEntity<APIResponse> doRegister(@RequestBody RegisterRequestDto payload){
         APIResponse response = authService.register(payload);
         return new ResponseEntity<>(response, response.getStatus());
     }
