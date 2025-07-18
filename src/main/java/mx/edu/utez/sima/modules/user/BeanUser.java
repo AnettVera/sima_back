@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "user")
-public class User implements UserDetails {
+public class BeanUser implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +46,7 @@ public class User implements UserDetails {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Rol rol;
 
@@ -61,10 +61,10 @@ public class User implements UserDetails {
             uuid = UUID.randomUUID().toString();
         }
     }
-    public User() {
+    public BeanUser() {
     }
 
-    public User(Long id, String uuid, String username, String password, String name, String lastName, String email, Boolean active, LocalDateTime createdAt, Rol rol, Storage storage) {
+    public BeanUser(Long id, String uuid, String username, String password, String name, String lastName, String email, Boolean active, LocalDateTime createdAt, Rol rol, Storage storage) {
         this.id = id;
         this.uuid = uuid;
         this.username = username;

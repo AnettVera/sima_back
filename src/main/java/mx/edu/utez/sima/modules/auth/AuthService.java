@@ -1,13 +1,12 @@
 package mx.edu.utez.sima.modules.auth;
 
-import mx.edu.utez.sima.Security.CustomUserDetailsService;
-import mx.edu.utez.sima.Security.JWT.JwtService;
-import mx.edu.utez.sima.Util.APIResponse;
-import mx.edu.utez.sima.Util.PasswordEncoder;
+import mx.edu.utez.sima.modules.user.BeanUser;
+import mx.edu.utez.sima.security.CustomUserDetailsService;
+import mx.edu.utez.sima.security.jwt.JwtService;
+import mx.edu.utez.sima.utils.APIResponse;
+import mx.edu.utez.sima.utils.PasswordEncoder;
 import mx.edu.utez.sima.modules.auth.dto.LoginRequestDto;
-import mx.edu.utez.sima.modules.user.User;
 import mx.edu.utez.sima.modules.user.UserRepository;
-import mx.edu.utez.sima.modules.rol.RolRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -28,14 +27,14 @@ public class AuthService {
     @Transactional(readOnly = true)
     public APIResponse login(LoginRequestDto login) {
         try {
-            User user = userRepository.findByUsername(login.getUsername())
+            BeanUser beanUser = userRepository.findByUsername(login.getUsername())
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-            if (!PasswordEncoder.verifyPassword(login.getPassword(), user.getPassword())) {
+            if (!PasswordEncoder.verifyPassword(login.getPassword(), beanUser.getPassword())) {
                 return new APIResponse("Usuario o contraseña incorrectos", true, HttpStatus.UNAUTHORIZED);
             }
 
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(beanUser.getUsername());
             String token = jwtService.generateToken(userDetails);
             return new APIResponse("Inicio de sesión exitoso", token, false, HttpStatus.OK);
         } catch (Exception e) {
@@ -44,28 +43,28 @@ public class AuthService {
     }
 
     @Transactional
-    public APIResponse register(User user) {
+    public APIResponse register(BeanUser beanUser) {
         try {
-            if (userRepository.existsByUsername(user.getUsername())) {
+            if (userRepository.existsByUsername(beanUser.getUsername())) {
                 return new APIResponse("El nombre de usuario ya está en uso", true, HttpStatus.CONFLICT);
             }
             
-            if (userRepository.existsByEmail(user.getEmail())) {
+            if (userRepository.existsByEmail(beanUser.getEmail())) {
                 return new APIResponse("El email ya está en uso", true, HttpStatus.CONFLICT);
             }
 
-            if (user.getRol() == null) {
+            if (beanUser.getRol() == null) {
                 return new APIResponse("El rol es requerido", true, HttpStatus.BAD_REQUEST);
             }
 
 
-            user.setPassword(PasswordEncoder.encodePassword(user.getPassword()));
-            User savedUser = userRepository.save(user);
+            beanUser.setPassword(PasswordEncoder.encodePassword(beanUser.getPassword()));
+            BeanUser savedBeanUser = userRepository.save(beanUser);
             
-            User userWithFullData = userRepository.findById(savedUser.getId())
-                    .orElse(savedUser);
+            BeanUser beanUserWithFullData = userRepository.findById(savedBeanUser.getId())
+                    .orElse(savedBeanUser);
             
-            return new APIResponse("Registro exitoso", userWithFullData, false, HttpStatus.CREATED);
+            return new APIResponse("Registro exitoso", beanUserWithFullData, false, HttpStatus.CREATED);
         } catch (Exception e) {
             return new APIResponse("Registro fallido: " + e.getMessage(), true, HttpStatus.INTERNAL_SERVER_ERROR);
         }

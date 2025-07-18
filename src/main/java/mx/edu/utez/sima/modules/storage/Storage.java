@@ -3,7 +3,7 @@ package mx.edu.utez.sima.modules.storage;
 import jakarta.persistence.*;
 import mx.edu.utez.sima.modules.article.Article;
 import mx.edu.utez.sima.modules.category.Category;
-import mx.edu.utez.sima.modules.user.User;
+import mx.edu.utez.sima.modules.user.BeanUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class Storage {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsible_id", unique = true)
-    private User responsible;
+    private BeanUser responsible;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -46,7 +46,7 @@ public class Storage {
     public Storage() {
     }
 
-    public Storage(Long id, String uuid, String storageIdentifier, Boolean status, User responsible, Category category, List<Article> articles) {
+    public Storage(Long id, String uuid, String storageIdentifier, Boolean status, BeanUser responsible, Category category, List<Article> articles) {
         this.id = id;
         this.uuid = uuid;
         this.storageIdentifier = storageIdentifier;
@@ -96,11 +96,11 @@ public class Storage {
         this.storageIdentifier = storageIdentifier;
     }
 
-    public User getResponsible() {
+    public BeanUser getResponsible() {
         return responsible;
     }
 
-    public void setResponsible(User responsible) {
+    public void setResponsible(BeanUser responsible) {
         this.responsible = responsible;
     }
 

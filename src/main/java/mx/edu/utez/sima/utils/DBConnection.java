@@ -1,4 +1,4 @@
-package mx.edu.utez.sima.Util;
+package mx.edu.utez.sima.utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
