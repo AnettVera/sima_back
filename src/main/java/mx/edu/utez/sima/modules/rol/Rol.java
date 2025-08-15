@@ -20,15 +20,15 @@ public class Rol {
 
     @OneToMany(mappedBy = "rol")
     @JsonIgnore
-    private List<BeanUser> beanUsers;
+    private List<BeanUser> user;
 
     public Rol() {
     }
 
-    public Rol(Long id, String name, List<BeanUser> beanUser) {
+    public Rol(Long id, String name, List<BeanUser> user) {
         this.id = id;
         this.name = name;
-        this.beanUsers = beanUser;
+        this.user = user;
     }
 
     public Long getId() {
@@ -48,10 +48,10 @@ public class Rol {
     }
 
     public List<BeanUser> getUser() {
-        return beanUsers;
+        return user;
     }
 
-    public void setUser(List<BeanUser> beanUser) {
-        this.beanUsers = beanUser;
+    public void setUser(List<BeanUser> user) {
+        this.user = user;
     }
 }
