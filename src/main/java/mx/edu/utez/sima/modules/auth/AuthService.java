@@ -1,90 +1,149 @@
 package mx.edu.utez.sima.modules.auth;
 
-import mx.edu.utez.sima.modules.auth.dto.RegisterRequestDto;
-import mx.edu.utez.sima.modules.auth.dto.UserResponseDto;
-import mx.edu.utez.sima.modules.rol.Rol;
-import mx.edu.utez.sima.modules.rol.RolRepository;
+import mx.edu.utez.sima.modules.Email.Emails;
+import mx.edu.utez.sima.modules.auth.dto.LoginRequestDTO;
 import mx.edu.utez.sima.modules.user.BeanUser;
-import mx.edu.utez.sima.security.CustomUserDetailsService;
-import mx.edu.utez.sima.security.jwt.JwtService;
-import mx.edu.utez.sima.utils.APIResponse;
-import mx.edu.utez.sima.utils.PasswordEncoder;
-import mx.edu.utez.sima.modules.auth.dto.LoginRequestDto;
 import mx.edu.utez.sima.modules.user.UserRepository;
+import mx.edu.utez.sima.security.jwt.JWTUtils;
+import mx.edu.utez.sima.services.EmailService;
+import mx.edu.utez.sima.utils.APIResponse;
+import mx.edu.utez.sima.utils.GenerateCode;
+import mx.edu.utez.sima.utils.PasswordEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
+import java.util.Optional;
+
 @Service
 public class AuthService {
-    private JwtService jwtService;
-    private UserRepository userRepository;
-    private CustomUserDetailsService customUserDetailsService;
-    private RolRepository rolRepository;
+    private final UserRepository userRepository;
 
-    public AuthService(JwtService jwtService, UserRepository userRepository, CustomUserDetailsService customUserDetailsService, RolRepository rolRepository) {
-        this.jwtService = jwtService;
+    private final JWTUtils jwtUtils;
+
+    private final EmailService emailService;
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
+    public AuthService(UserRepository userRepository,  JWTUtils jwtUtils, EmailService emailService) {
         this.userRepository = userRepository;
-        this.customUserDetailsService = customUserDetailsService;
-        this.rolRepository = rolRepository;
+
+        this.jwtUtils = jwtUtils;
+        this.emailService = emailService;
     }
 
     @Transactional(readOnly = true)
-    public APIResponse login(LoginRequestDto login) {
+    public APIResponse doLogin(LoginRequestDTO payload){
         try {
-            BeanUser beanUser = userRepository.findByUsername(login.getUsername())
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-            if (!PasswordEncoder.verifyPassword(login.getPassword(), beanUser.getPassword())) {
-                return new APIResponse("Usuario o contraseña incorrectos", true, HttpStatus.UNAUTHORIZED);
-            }
-
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(beanUser.getUsername());
-            String token = jwtService.generateToken(userDetails);
-            return new APIResponse("Inicio de sesión exitoso", token, false, HttpStatus.OK);
-        } catch (Exception e) {
-            return new APIResponse("Error en el inicio de sesión: " + e.getMessage(), true, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Transactional
-    public APIResponse register(RegisterRequestDto registerDto) {
-        try {
-            if (userRepository.existsByUsername(registerDto.getUsername())) {
-                return new APIResponse("El nombre de usuario ya está en uso", true, HttpStatus.CONFLICT);
-            }
-
-            if (userRepository.existsByEmail(registerDto.getEmail())) {
-                return new APIResponse("El email ya está en uso", true, HttpStatus.CONFLICT);
-            }
-
-            Rol rol = rolRepository.findById(registerDto.getRoleId())
+            BeanUser found = userRepository.findByUsername(payload.getUsername())
                     .orElse(null);
 
-            if (rol == null) {
-                return new APIResponse("El rol especificado no existe", true, HttpStatus.BAD_REQUEST);
+            if (found == null){
+                return new APIResponse(
+                        "Usuario o contraseña incorrectos",
+                        true,
+                        HttpStatus.NOT_FOUND
+                );
             }
 
-            BeanUser user = new BeanUser();
-            user.setUsername(registerDto.getUsername());
-            user.setPassword(PasswordEncoder.encodePassword(registerDto.getPassword()));
-            user.setName(registerDto.getName());
-            user.setLastName(registerDto.getLastName());
-            user.setEmail(registerDto.getEmail());
-            user.setRol(rol);
-            user.setActive(true);
+            if (!PasswordEncoder.verifyPassword(payload.getPassword(), found.getPassword())){
+                return new APIResponse(
+                        "Usuario o contraseña incorrectos",
+                        true,
+                        HttpStatus.NOT_FOUND
+                );
+            }
 
-            BeanUser savedUser = userRepository.save(user);
+            String token = jwtUtils.generateToken(found);
 
-            BeanUser userWithFullData = userRepository.findById(savedUser.getId())
-                    .orElse(savedUser);
+            if (found.getTemporal_password() == true){
+                return new APIResponse(
+                        "Inicio de sesión exitoso",
+                        token,
+                        false,
+                        HttpStatus.OK
+                );
+            }
 
-            UserResponseDto userResponse = new UserResponseDto(userWithFullData);
+            return new APIResponse(
+                    "Inicio de sesión exitoso",
+                    token,
+                    false,
+                    HttpStatus.OK
+            );
 
-            return new APIResponse("Registro exitoso", userResponse, false, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new APIResponse("Registro fallido: " + e.getMessage(), true, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception ex){
+            log.error("Error al iniciar sesion", ex);
+            return new APIResponse(
+                    "Error al iniciar sesion",
+                    true,
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
+
+    @Transactional(rollbackFor = {SQLException.class, Exception.class, Exception.class})
+    public APIResponse register(BeanUser payload) {
+        try {
+          BeanUser found = userRepository.findByUsername(payload.getUsername())
+                  .orElse(null);
+
+            if (found != null) {
+                return new APIResponse(
+                        "El usuario ya existe",
+                        true,
+                        HttpStatus.CONFLICT
+                );
+            }
+
+            payload.setPassword(PasswordEncoder.encodePassword(payload.getPassword()));
+            BeanUser saved = userRepository.save(payload);
+            return new APIResponse(
+                    "Usuario registrado exitosamente",
+                    saved,
+                    false,
+                    HttpStatus.CREATED
+            );
+        } catch (Exception ex) {
+            log.error("Error al registrar el usuario", ex);
+            return new APIResponse(
+                    "Error al registrar el usuario",
+                    true,
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public APIResponse forwardPassword(String email) {
+        try {
+            Optional<BeanUser> user = userRepository.findByEmail(email);
+
+            if (user.isEmpty()) {
+                return new  APIResponse("El usuario no existe", true,HttpStatus.NOT_FOUND);
+            }
+            if (!user.get().getActive()) {
+                return  new  APIResponse("Cuenta suspendida", true , HttpStatus.BAD_REQUEST );
+            }
+
+
+            String newPassword = GenerateCode.generatePassword();
+            user.get().setPassword(PasswordEncoder.encodePassword(newPassword));
+            user.get().setTemporal_password(true);
+
+            userRepository.saveAndFlush(user.get());
+
+            Emails emails = new Emails(user.get().getEmail(), newPassword, "Restauracion de contraseña");
+            emailService.sendEmail(emails, 1);
+
+            return new  APIResponse("Correo enviado correctamente",true, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error al enviar el correo de restauración de contraseña", e);
+            return new APIResponse( "Error desconocido: " , true, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
