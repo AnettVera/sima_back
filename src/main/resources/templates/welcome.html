@@ -1,0 +1,467 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <title>Bienvenido a SIMA</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="x-apple-disable-message-reformatting" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no" />
+
+    <style type="text/css">
+        /* Reset y base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .email-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #16423C 0%, #6A9C89 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-text {
+            color: white;
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .message-title {
+            color: #1f2937;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .user-name {
+            color: #16423C;
+            font-weight: 700;
+        }
+
+        .message-text {
+            color: #4b5563;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .credentials-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #16423C;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 30px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .credentials-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #16423C 0%, #6A9C89 100%);
+        }
+
+        .credentials-title {
+            color: #16423C;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .credential-item {
+            margin-bottom: 16px;
+        }
+
+        .credential-label {
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .credential-value {
+            color: #16423C;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 8px 16px;
+            background: rgba(22, 66, 60, 0.1);
+            border-radius: 6px;
+            display: inline-block;
+            border: 1px solid rgba(22, 66, 60, 0.2);
+            font-family: 'Courier New', monospace;
+        }
+
+        .password-value {
+            font-size: 24px;
+            letter-spacing: 2px;
+            padding: 12px 20px;
+            border-radius: 8px;
+        }
+
+        .steps-section {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 1px solid #10b981;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 30px 0;
+        }
+
+        .steps-title {
+            color: #065f46;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            color: #047857;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .step-number {
+            background: #10b981;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 12px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .warning-section {
+            background: linear-gradient(135deg, #fef3cd 0%, #fde68a 100%);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .warning-icon {
+            color: #d97706;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .warning-title {
+            color: #92400e;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .warning-text {
+            color: #b45309;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            background: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-text {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .company-info {
+            color: #16423C;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #e5e7eb 50%, transparent 100%);
+            margin: 30px 0;
+        }
+
+        .support-section {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .support-text {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .email-container {
+                padding: 20px 10px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .header-title {
+                font-size: 28px;
+            }
+
+            .message-title {
+                font-size: 20px;
+            }
+
+            .password-value {
+                font-size: 20px;
+                letter-spacing: 1px;
+            }
+        }
+
+        /* Email client compatibility */
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        .ExternalClass {
+            width: 100%;
+        }
+
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+            line-height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+<div class="email-container">
+    <div class="email-card">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SIMA</span>
+            </div>
+            <h1 class="header-title">¡Bienvenido al Sistema!</h1>
+            <p class="header-subtitle">Sistema de Información y Manejo Administrativo</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h2 class="message-title">
+                ¡Hola <span class="user-name" th:text="${userName}">Usuario</span>!
+            </h2>
+
+            <p class="message-text">
+                Te damos la bienvenida a SIMA. Tu cuenta ha sido creada exitosamente
+                y ya puedes acceder al sistema con las credenciales que encontrarás a continuación.
+            </p>
+
+            <div class="credentials-container">
+                <div class="credentials-title">Tus credenciales de acceso</div>
+
+                <div class="credential-item">
+                    <div class="credential-label">Usuario:</div>
+                    <div class="credential-value" th:text="${name}"></div>
+                </div>
+
+                <div class="credential-item">
+                    <div class="credential-label">Contraseña temporal:</div>
+                    <div class="credential-value password-value" th:text="${message}"></div>
+                </div>
+            </div>
+
+            <div class="steps-section">
+                <div class="steps-title">Primeros pasos para comenzar</div>
+
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div>Accede al sistema con las credenciales proporcionadas</div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div>El sistema te pedirá cambiar tu contraseña temporal</div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div>Establece una contraseña segura que puedas recordar fácilmente</div>
+                </div>
+
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="warning-section">
+                <div class="warning-icon">🔐</div>
+                <div class="warning-title">Importante - Seguridad de tu cuenta</div>
+                <div class="warning-text">
+                    Por tu seguridad, no compartas estas credenciales con nadie.
+                    La contraseña temporal debe ser cambiada en tu primer inicio de sesión.
+                </div>
+            </div>
+
+            <p class="message-text">
+                Estamos emocionados de tenerte como parte de nuestro sistema.
+                Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.
+            </p>
+
+            <div class="support-section">
+                <div class="support-text">
+                    <strong>¿Necesitas ayuda?</strong><br>
+                    Si tienes problemas para acceder o alguna consulta,
+                    contacta con el administrador del sistema.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                Este correo fue generado automáticamente por el sistema SIMA.
+                Guarda este correo en un lugar seguro para futuras referencias.
+            </p>
+            <div class="company-info">
+                Sistema SIMA - Bienvenido a bordo
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
