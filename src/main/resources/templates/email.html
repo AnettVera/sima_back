@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <title>Restablecimiento de Contraseña - SIMA</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="x-apple-disable-message-reformatting" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no" />
+
+    <style type="text/css">
+        /* Reset y base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .email-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #16423C 0%, #6A9C89 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-text {
+            color: white;
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .message-title {
+            color: #1f2937;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .message-text {
+            color: #4b5563;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .password-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #16423C;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 30px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .password-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #16423C 0%, #6A9C89 100%);
+        }
+
+        .password-label {
+            color: #16423C;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .password-value {
+            color: #16423C;
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            padding: 12px 20px;
+            background: rgba(22, 66, 60, 0.1);
+            border-radius: 8px;
+            display: inline-block;
+            border: 1px solid rgba(22, 66, 60, 0.2);
+        }
+
+        .warning-section {
+            background: linear-gradient(135deg, #fef3cd 0%, #fde68a 100%);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .warning-icon {
+            color: #d97706;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .warning-title {
+            color: #92400e;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .warning-text {
+            color: #b45309;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            background: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-text {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .company-info {
+            color: #16423C;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #e5e7eb 50%, transparent 100%);
+            margin: 30px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .email-container {
+                padding: 20px 10px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .header-title {
+                font-size: 24px;
+            }
+
+            .message-title {
+                font-size: 20px;
+            }
+
+            .password-value {
+                font-size: 20px;
+                letter-spacing: 1px;
+            }
+        }
+
+        /* Email client compatibility */
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        .ExternalClass {
+            width: 100%;
+        }
+
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+            line-height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+<div class="email-container">
+    <div class="email-card">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SIMA</span>
+            </div>
+            <h1 class="header-title">Restablecimiento de Contraseña</h1>
+            <p class="header-subtitle">Sistema de Información y Manejo Administrativo</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h2 class="message-title">Nueva Contraseña Temporal</h2>
+
+            <p class="message-text">
+                Hemos recibido una solicitud para restablecer tu contraseña.
+                Se te ha asignado una contraseña temporal para que puedas acceder
+                a tu perfil y establecer una nueva que te resulte fácil de recordar.
+            </p>
+
+            <div class="password-container">
+                <div class="password-label">Tu nueva contraseña temporal es:</div>
+                <div class="password-value" th:text="${message}"></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="warning-section">
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-title">Importante - Medidas de Seguridad</div>
+                <div class="warning-text">
+                    Por tu seguridad, no compartas esta contraseña con nadie y
+                    cámbiala lo más pronto posible una vez que accedas al sistema.
+                </div>
+            </div>
+
+            <p class="message-text">
+                Una vez que inicies sesión con esta contraseña temporal,
+                el sistema te pedirá que establezcas una nueva contraseña segura.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                Este correo fue generado automáticamente por el sistema SIMA.
+                Si no solicitaste este cambio de contraseña, contacta inmediatamente
+                con el administrador del sistema.
+            </p>
+            <div class="company-info">
+                Sistema SIMA
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
