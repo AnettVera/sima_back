@@ -1,13 +1,9 @@
 package mx.edu.utez.sima.security;
 
 import mx.edu.utez.sima.security.filter.JwtAuthenticationFilter;
-import mx.edu.utez.sima.security.jwt.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,19 +23,13 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class MainSecurity {
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomUserDetailsService userDetailsService;
 
-    public MainSecurity(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                          JwtAuthenticationFilter jwtAuthenticationFilter,
-                          CustomUserDetailsService userDetailsService) {
-        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+    public MainSecurity(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.userDetailsService = userDetailsService;
     }
 
-    private static final String[] PUBLIC_URLS = {
+    private static final String[] SWAGGER_WHITELIST = {
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/api-docs/**",
@@ -48,27 +38,51 @@ public class MainSecurity {
             "/webjars/**"
     };
 
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/api/auth/**"
+    };
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain doFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                //.exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas de autenticación públicas (DEBEN IR PRIMERO)
-                        .requestMatchers(HttpMethod.POST, "/api/auth", "/api/auth/register").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // Otras rutas públicas
-                        .requestMatchers(PUBLIC_URLS).permitAll()
-                        // Rutas protegidas por rol
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
-                        // Todo lo demás requiere autenticación
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
+
+                        // === Usuarios ===
+                        .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.POST, "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
+
+                        // === Categorías de almacén ===
+                        .requestMatchers(HttpMethod.GET, "/api/category/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.POST, "/api/category").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/category/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/category/**").hasRole("ADMIN")
+
+                        // === Almacenes ===
+                        .requestMatchers(HttpMethod.GET, "/api/storage/responsible/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.POST, "/api/storage").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/storage/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/storage/**").hasRole("ADMIN")
+
+                        // === Artículos ===
+                        .requestMatchers(HttpMethod.GET, "/api/article/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.POST, "/api/article").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/article/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/article/**").hasRole("USER")
+
+                        // === Asignación y remoción de artículos en almacén ===
+                        .requestMatchers(HttpMethod.PUT, "/api/storage/{storageId}/article/{articleId}").hasRole("USER") // Asignar
+                        .requestMatchers(HttpMethod.DELETE, "/api/storage/{storageId}/article/{articleId}").hasRole("USER") // Remover
+
                         .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -80,8 +94,7 @@ public class MainSecurity {
         configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L); // Cache preflight por 1 hora
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -93,17 +106,4 @@ public class MainSecurity {
         return new BCryptPasswordEncoder(12);
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
 }

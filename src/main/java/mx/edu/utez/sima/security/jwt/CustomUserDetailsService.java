@@ -1,10 +1,9 @@
-package mx.edu.utez.sima.security;
+package mx.edu.utez.sima.security.jwt;
 
 import mx.edu.utez.sima.modules.user.BeanUser;
 import mx.edu.utez.sima.modules.user.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
