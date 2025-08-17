@@ -4,7 +4,7 @@ import mx.edu.utez.sima.modules.Email.Emails;
 import mx.edu.utez.sima.modules.auth.dto.LoginRequestDTO;
 import mx.edu.utez.sima.modules.user.BeanUser;
 import mx.edu.utez.sima.modules.user.UserRepository;
-import mx.edu.utez.sima.security.jwt.JWTUtils;
+import mx.edu.utez.sima.security.jwt.JwtService;
 import mx.edu.utez.sima.services.EmailService;
 import mx.edu.utez.sima.utils.APIResponse;
 import mx.edu.utez.sima.utils.GenerateCode;
@@ -22,16 +22,16 @@ import java.util.Optional;
 public class AuthService {
     private final UserRepository userRepository;
 
-    private final JWTUtils jwtUtils;
+    private final JwtService jwtService;
 
     private final EmailService emailService;
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
-    public AuthService(UserRepository userRepository,  JWTUtils jwtUtils, EmailService emailService) {
+    public AuthService(UserRepository userRepository,  JwtService jwtService, EmailService emailService) {
         this.userRepository = userRepository;
 
-        this.jwtUtils = jwtUtils;
+        this.jwtService = jwtService;
         this.emailService = emailService;
     }
 
@@ -57,9 +57,9 @@ public class AuthService {
                 );
             }
 
-            String token = jwtUtils.generateToken(found);
+            String token = jwtService.generateToken(found);
 
-            if (found.getTemporal_password() == true){
+            if (found.getTemporal_password()){
                 return new APIResponse(
                         "Inicio de sesión exitoso",
                         token,
