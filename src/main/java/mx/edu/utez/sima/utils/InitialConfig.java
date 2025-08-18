@@ -81,21 +81,17 @@ public class InitialConfig implements CommandLineRunner {
 
         }
 
-
         BeanUser users = new BeanUser();
         users.setUsername("user");
         users.setName("User");
         users.setLastName("Apellidos");
         users.setEmail("user@gmail.com");
-        users.setPassword(passwordEncoder.encode("password123"));
+        users.setPassword("password123");
         users.setActive(true);
         users.setRol(rolUser);
         ResponseEntity<?> respUser = userService.createUser(users);
         System.out.println(" Usuario creado: user - " + respUser.getBody());
 
-
-
-        // Inserción de categorías iniciales
         List<String> categorias = Arrays.asList(
                 "Tecnología", "Materia", "Muebles", "Ropa", "Textiles", "Alimentos",
                 "Automotriz", "Construcción", "Farmacéutico", "Químicos", "Electrónica",
@@ -107,7 +103,6 @@ public class InitialConfig implements CommandLineRunner {
             System.out.println("Categoría insertada: " + nombre + " - " + respCategoria.getBody());
         });
 
-        // Inserción de registros de storage (usando categoría "Tecnología")
         Optional<Category> techCategoryOpt = categoryRepository.findByCategoryName("Tecnología");
         List<Storage> techStorages = new ArrayList<>();
 
@@ -116,16 +111,14 @@ public class InitialConfig implements CommandLineRunner {
             List<BeanUser> userss = userRepository.findByRolName("USER");
 
             if (!userss.isEmpty()) {
-                BeanUser user = userss.get(0); // Tomar el primer usuario con rol USER
+                BeanUser user = userss.get(0);
 
-                // Crear 2 almacenes de ejemplo
                 List<String> storageNames = Arrays.asList("Almacén Tech 1", "Almacén Tech 2");
 
                 for (String storageName : storageNames) {
                     Storage storage = new Storage();
                     storage.setCategory(techCategory);
 
-                    // CORRECCIÓN: Usar el usuario completo obtenido de la base de datos
                     storage.setResponsible(user);
 
                     ResponseEntity<?> respStorage = storageService.createStorage(storage);
@@ -145,7 +138,6 @@ public class InitialConfig implements CommandLineRunner {
             System.out.println("No se encontró la categoría Tecnología para asignar a los almacenes.");
         }
 
-        // Creación de 5 artículos con la misma categoría de los almacenes ("Tecnología")
         if (techCategoryOpt.isPresent()) {
             Category techCategory = techCategoryOpt.get();
             for (int i = 1; i <= 5; i++) {
@@ -155,7 +147,6 @@ public class InitialConfig implements CommandLineRunner {
                 article.setQuantity(10L);
                 article.setCategory(techCategory);
 
-                // Se crea el artículo
                 ResponseEntity<APIResponse> respArticle = articleService.createArticle(article);
                 APIResponse articleApiResp = respArticle.getBody();
 
@@ -163,7 +154,6 @@ public class InitialConfig implements CommandLineRunner {
                         articleApiResp.getData() instanceof Article && !techStorages.isEmpty()) {
 
                     Article savedArticle = (Article) articleApiResp.getData();
-                    // Se asignan 5 unidades del artículo al primer almacén disponible
                     ResponseEntity<APIResponse> assignResp = articleService.assignArticleToStorage(
                             savedArticle.getId(),
                             techStorages.get(0).getId(),
@@ -174,7 +164,6 @@ public class InitialConfig implements CommandLineRunner {
             }
         }
 
-        // Creación de 5 artículos con categoría diferente ("Materia")
         Optional<Category> otherCategoryOpt = categoryRepository.findByCategoryName("Materia");
         if (otherCategoryOpt.isPresent()) {
             Category otherCategory = otherCategoryOpt.get();
@@ -185,7 +174,6 @@ public class InitialConfig implements CommandLineRunner {
                 article.setQuantity(50L);
                 article.setCategory(otherCategory);
 
-                // No se asigna almacén
                 ResponseEntity<?> respArticle = articleService.createArticle(article);
                 System.out.println("Articulo creado (sin almacén): Articulo Materia " + i + " - " + respArticle.getBody());
             }

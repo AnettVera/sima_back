@@ -26,7 +26,6 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    // Crear categoría
     public ResponseEntity<APIResponse> createCategory(String categorysName) {
         try {
             Category foundcategory = categoryRepository.findByCategoryName(categorysName).orElse(null);
@@ -50,7 +49,6 @@ public class CategoryService {
         }
     }
 
-    // Obtener todas las categorías
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getAllCategories() {
         try {
@@ -63,7 +61,6 @@ public class CategoryService {
         }
     }
 
-    // Obtener categoría por ID
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getCategoryById(Long id) {
         try {
@@ -81,7 +78,6 @@ public class CategoryService {
         }
     }
 
-    // Obtener categoría por UUID
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getCategoryByUuid(String uuid) {
         try {
@@ -99,7 +95,6 @@ public class CategoryService {
         }
     }
 
-    // Obtener categoría por nombre
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getCategoryByName(String name) {
         try {
@@ -117,7 +112,6 @@ public class CategoryService {
         }
     }
 
-    // Actualizar categoría
     public ResponseEntity<APIResponse> updateCategory(Long id, String categoryDetails) {
         try {
             Category category = categoryRepository.findById(id)
@@ -140,7 +134,6 @@ public class CategoryService {
         }
     }
 
-    // Eliminar categoría
     public ResponseEntity<APIResponse> deleteCategory(Long id) {
         try {
             Category category = categoryRepository.findById(id)
@@ -165,13 +158,11 @@ public class CategoryService {
         }
     }
 
-    // Verificar si existe categoría por nombre
     @Transactional(readOnly = true)
     public boolean existsByName(String name) {
         return categoryRepository.existsByCategoryName(name);
     }
 
-    // Obtener categorías con almacenes
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getCategoriesWithStorages() {
         try {
@@ -184,7 +175,6 @@ public class CategoryService {
         }
     }
 
-    // Obtener categorías con artículos
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getCategoriesWithArticles() {
         try {
