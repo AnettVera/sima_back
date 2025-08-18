@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import mx.edu.utez.sima.modules.auth.dto.LoginRequestDTO;
 import mx.edu.utez.sima.modules.user.BeanUser;
+import mx.edu.utez.sima.services.AuthService;
 import mx.edu.utez.sima.utils.APIResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

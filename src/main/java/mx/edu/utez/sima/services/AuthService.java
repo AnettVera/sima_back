@@ -1,11 +1,10 @@
-package mx.edu.utez.sima.modules.auth;
+package mx.edu.utez.sima.services;
 
 import mx.edu.utez.sima.modules.Email.Emails;
 import mx.edu.utez.sima.modules.auth.dto.LoginRequestDTO;
 import mx.edu.utez.sima.modules.user.BeanUser;
 import mx.edu.utez.sima.modules.user.UserRepository;
-import mx.edu.utez.sima.security.jwt.JwtService;
-import mx.edu.utez.sima.services.EmailService;
+import mx.edu.utez.sima.security.jwt.JWTUtils;
 import mx.edu.utez.sima.utils.APIResponse;
 import mx.edu.utez.sima.utils.GenerateCode;
 import mx.edu.utez.sima.utils.PasswordEncoder;
@@ -22,16 +21,16 @@ import java.util.Optional;
 public class AuthService {
     private final UserRepository userRepository;
 
-    private final JwtService jwtService;
+    private final JWTUtils jwtUtils;
 
     private final EmailService emailService;
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
-    public AuthService(UserRepository userRepository,  JwtService jwtService, EmailService emailService) {
+    public AuthService(UserRepository userRepository,  JWTUtils jwtUtils, EmailService emailService) {
         this.userRepository = userRepository;
 
-        this.jwtService = jwtService;
+        this.jwtUtils = jwtUtils;
         this.emailService = emailService;
     }
 
@@ -57,9 +56,9 @@ public class AuthService {
                 );
             }
 
-            String token = jwtService.generateToken(found);
+            String token = jwtUtils.generateToken(found);
 
-            if (found.getTemporal_password()){
+            if (found.getTemporal_password() == true){
                 return new APIResponse(
                         "Inicio de sesión exitoso",
                         token,
