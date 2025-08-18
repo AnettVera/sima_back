@@ -10,7 +10,7 @@ public class UserDTO {
     private Long id;
     private String username;
 
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚÑñ][a-zA-ZáéíóúÁÉÍÓÚÑñ\\s]{3,}$", message = "Solamente se aceptan letras")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚÑñ][a-zA-ZáéíóúÁÉÍÓÚÑñ\\s]{2,}$", message = "Solamente se aceptan letras")
     @NotNull(message = "Favor de ingresar los datos")
     @NotBlank(message = "Favor de no dejar los datos en blanco")
     private String name;

@@ -227,21 +227,7 @@ public class ArticleService {
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<APIResponse> assignCategory(Long articleId, Long categoryId) {
-        try {
-            Article article = articleRepository.findById(articleId)
-                    .orElseThrow(() -> new RuntimeException("Artículo no encontrado"));
 
-            article.setCategory(categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada")));
-
-            return ResponseEntity.ok(new APIResponse("Categoría asignada", articleRepository.save(article), false, HttpStatus.OK));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new APIResponse("Error al asignar categoría", true, HttpStatus.INTERNAL_SERVER_ERROR));
-        }
-    }
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getArticlesByUserByStorage(Long id) {
         try {
@@ -397,11 +383,9 @@ public class ArticleService {
                         .body(new APIResponse("Cantidad del artículo insuficiente", true, HttpStatus.BAD_REQUEST));
             }
 
-            // Disminuye la cantidad del artículo
             article.setQuantity(article.getQuantity() - assignQuantity);
             articleRepository.save(article);
 
-            // Por cada unidad a asignar se crea un registro en la tabla de intersección
             for (int i = 0; i < assignQuantity; i++) {
                 StorageHasArticle sha = new StorageHasArticle(article, storage);
                 storageHasArticleRepository.save(sha);

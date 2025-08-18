@@ -46,18 +46,15 @@ public class StorageService {
     }
 
 
-    // Crear almacén
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<APIResponse> createStorage(Storage storage) {
         try {
-            // Buscar responsable Y categoría ** por ID/UUID, NO usar las instancias del parámetro recibido
             String responsibleUuid = storage.getResponsible() != null ? storage.getResponsible().getUuid() : null;
             Long categoryId = storage.getCategory() != null ? storage.getCategory().getId() : null;
 
             Optional<BeanUser> responsible = userRepository.findByUuidAndRol_Name(responsibleUuid, "USER");
             Optional<Category> category = categoryRepository.findById(categoryId);
 
-            // Validaciones
             if (responsible.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new APIResponse("El responsable no existe", true, HttpStatus.BAD_REQUEST));
@@ -76,25 +73,20 @@ public class StorageService {
                         .body(new APIResponse("Categoría no encontrada", true, HttpStatus.BAD_REQUEST));
             }
 
-            // Usar SOLO instancias managed para las relaciones
             storage.setUuid(UUID.randomUUID().toString());
             storage.setStatus(true);
             storage.setCategory(category.get());
             storage.setResponsible(null); // No asignar responsable por ahora
 
-            // Guardar storage primero
             Storage saved = storageRepository.save(storage);
 
-            // Generar identificador y asignar
             String generatedIdentifier = GenerateCode.generateStorageIdentifier(saved.getId());
             saved.setStorageIdentifier(generatedIdentifier);
 
-            // Configura la relación bidireccional usando managed instance
             BeanUser responsibleUser = responsible.get();
             saved.setResponsible(responsibleUser);
             responsibleUser.setStorage(saved);
 
-            // Guardar ambas entidades. Primero el storage, luego el usuario
             Storage updated = storageRepository.saveAndFlush(saved);
             userRepository.saveAndFlush(responsibleUser);
 
@@ -108,7 +100,6 @@ public class StorageService {
         }
     }
 
-    // Obtener todos los almacenes
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getAllStorages() {
         try {
@@ -121,7 +112,6 @@ public class StorageService {
         }
     }
 
-    // Obtener almacén por ID
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getStorageById(Long id) {
         try {
@@ -139,7 +129,6 @@ public class StorageService {
         }
     }
 
-    // Obtener almacén por UUID
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getStorageByUuid(String uuid) {
         try {
@@ -157,7 +146,6 @@ public class StorageService {
         }
     }
 
-    // Obtener almacén por identificador
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getStorageByIdentifier(String identifier) {
         try {
@@ -175,7 +163,6 @@ public class StorageService {
         }
     }
 
-    // Actualizar almacén
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<APIResponse> updateStorage(Storage storageDetails) {
         try {
@@ -224,7 +211,6 @@ public class StorageService {
         }
     }
 
-    // Asignar responsable a almacén
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<APIResponse> assignResponsible(Long storageId, Long userId) {
         try {
@@ -250,7 +236,6 @@ public class StorageService {
     }
 
 
-    // Cambiar estado de almacén
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<APIResponse> toggleStorageStatus(Long id) {
         try {
@@ -267,7 +252,6 @@ public class StorageService {
         }
     }
 
-    // Eliminar almacén
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<APIResponse> deleteStorage(Long id) {
         try {
@@ -303,7 +287,6 @@ public class StorageService {
         }
     }
 
-    // Obtener almacenes por categoría
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getStoragesByCategory(Long categoryId) {
         try {
@@ -316,7 +299,6 @@ public class StorageService {
         }
     }
 
-    // Obtener almacenes activos
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getActiveStorages() {
         try {
@@ -329,7 +311,6 @@ public class StorageService {
         }
     }
 
-    // Obtener almacenes sin responsable
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getStoragesWithoutResponsible() {
         try {
@@ -342,7 +323,6 @@ public class StorageService {
         }
     }
 
-    // Obtener almacén por responsable
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getStorageByResponsible(Long userId) {
         try {
