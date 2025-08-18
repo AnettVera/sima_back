@@ -47,6 +47,13 @@ public class AuthService {
                         HttpStatus.NOT_FOUND
                 );
             }
+            if (!found.getActive()){
+                return new APIResponse(
+                        "Por el momento su cuenta se encuentra desactivada",
+                        true,
+                        HttpStatus.NOT_FOUND
+                );
+            }
 
             if (!PasswordEncoder.verifyPassword(payload.getPassword(), found.getPassword())){
                 return new APIResponse(
