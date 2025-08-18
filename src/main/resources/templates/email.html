@@ -49,23 +49,35 @@
         }
 
         .logo {
-            width: 64px;
-            height: 64px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            margin: 0 auto 25px auto;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+            display: table;
+        }
+
+        .logo:hover {
+            transform: translateY(-2px);
         }
 
         .logo-text {
             color: white;
-            font-weight: 700;
-            font-size: 24px;
-            letter-spacing: -0.5px;
+            font-weight: 900;
+            font-size: 26px;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 0;
+            padding: 0;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            line-height: 1;
         }
 
         .header-title {
@@ -226,6 +238,15 @@
                 font-size: 20px;
                 letter-spacing: 1px;
             }
+
+            .logo {
+                width: 70px;
+                height: 70px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
         }
 
         /* Email client compatibility */
@@ -259,7 +280,7 @@
                 <span class="logo-text">SIMA</span>
             </div>
             <h1 class="header-title">Restablecimiento de Contraseña</h1>
-            <p class="header-subtitle">Sistema de Información y Manejo Administrativo</p>
+            <p class="header-subtitle">Sistema de Inventario y Manejo de Almacenes</p>
         </div>
 
         <!-- Content -->
@@ -274,13 +295,12 @@
 
             <div class="password-container">
                 <div class="password-label">Tu nueva contraseña temporal es:</div>
-                <div class="password-value" th:text="${message}"></div>
+                <div class="password-value" th:text="${message}">@_3nOu0Aa</div>
             </div>
 
             <div class="divider"></div>
 
             <div class="warning-section">
-                <div class="warning-icon">⚠️</div>
                 <div class="warning-title">Importante - Medidas de Seguridad</div>
                 <div class="warning-text">
                     Por tu seguridad, no compartas esta contraseña con nadie y

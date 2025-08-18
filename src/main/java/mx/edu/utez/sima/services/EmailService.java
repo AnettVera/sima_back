@@ -27,36 +27,38 @@ public class EmailService {
         this.templateEngine = templateEngine;
     }
 
-    public void sendEmail(Emails email , int plantilla) throws MessagingException {
+    public void sendEmail(Emails email, int plantilla) throws MessagingException {
         try {
-
             Context context = new Context();
 
-            context.setVariable("message", email.getMensaje());
+            context.setVariable("userName", email.getDestinatario());
             context.setVariable("name", email.getSubject());
+            context.setVariable("message", email.getMensaje());
 
-            String[] plantillaAlerta = new String[]{"verify","email","welcome"};
-
+            String[] plantillaAlerta = new String[]{"verify", "email", "welcome"};
             String htmlContent = templateEngine.process(plantillaAlerta[plantilla], context);
 
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(email.getDestinatario());
-
+            switch (plantilla) {
+                case 1:
+                    helper.setSubject("Restablecimiento de contraseña - SIMA");
+                    break;
+                case 2:
+                    helper.setSubject("Bienvenido a SIMA");
+                    break;
+                default:
+                    helper.setSubject("Notificación de SIMA");
+            }
             helper.setText(htmlContent, true);
             helper.setFrom("ultranet.sa.d.cv@gmail.com");
             javaMailSender.send(message);
 
-            log.info("Correo HTML enviado con exito a {}", email.getDestinatario());
-
-            new ResponseEntity<>(new APIResponse("",email,false, HttpStatus.OK ), HttpStatus.OK);
+            log.info("Correo HTML enviado con éxito a {}", email.getDestinatario());
 
         } catch (Exception e) {
-
-            log.error("Error al enviar el coreo {}", e.getMessage());
-            new ResponseEntity<>(new APIResponse("No se envio el email",true, HttpStatus.BAD_REQUEST), HttpStatus.INTERNAL_SERVER_ERROR);
-
+            log.error("Error al enviar el correo {}", e.getMessage());
         }
-
     }
 }
