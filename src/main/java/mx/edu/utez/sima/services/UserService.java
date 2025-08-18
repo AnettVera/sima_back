@@ -71,6 +71,7 @@ public class UserService {
             Rol rol = rolRepository.findByName("USER");
             user.setRol(rol);
             user.setUuid(UUID.randomUUID().toString());
+            user.setTemporal_password(true);
 
             logger.warn("{} Password: \u001B[31m{}\u001B[0m", user.getUsername(), newPass);
 
