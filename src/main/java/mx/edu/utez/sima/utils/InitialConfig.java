@@ -87,7 +87,7 @@ public class InitialConfig implements CommandLineRunner {
         users.setName("User");
         users.setLastName("Apellidos");
         users.setEmail("user@gmail.com");
-        users.setPassword("password123");
+        users.setPassword(passwordEncoder.encode("password123"));
         users.setActive(true);
         users.setRol(rolUser);
         ResponseEntity<?> respUser = userService.createUser(users);
