@@ -1,5 +1,6 @@
 package mx.edu.utez.sima.security;
 
+
 import mx.edu.utez.sima.utils.APIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,17 +14,18 @@ import java.util.Map;
 @ControllerAdvice
 public class ControllerValidationHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<APIResponse> handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
+    public ResponseEntity<APIResponse> handleException(MethodArgumentNotValidException ex){
+        Map<String, String > errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(e->
+                errors.put(e.getField(), e.getDefaultMessage())
         );
-        APIResponse apiResponse = new APIResponse(
-                "Validation Error",
+        APIResponse response = new APIResponse(
+                "Favor de corregir los siguientes errores",
                 errors,
-                true,
+                 true,
                 HttpStatus.BAD_REQUEST
         );
-        return new ResponseEntity<>(apiResponse, apiResponse.getStatus());
+
+        return new ResponseEntity<>(response, response.getStatus());
     }
 }

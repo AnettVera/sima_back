@@ -1,11 +1,14 @@
-package mx.edu.utez.sima.security.filter;
+package mx.edu.utez.sima.security.filters;
+
+// Todos lo filtros se crean con la notation @Component
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import mx.edu.utez.sima.security.jwt.CustomUserDetailsService;
-import mx.edu.utez.sima.security.jwt.JwtService;
+import mx.edu.utez.sima.security.jwt.JWTUtils;
+import mx.edu.utez.sima.security.jwt.UDService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,15 +19,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class JWTFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
-    private final CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private UDService udService; // Sirve para validar el token
 
-    public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService customUserDetailsService, CustomUserDetailsService customUserDetailsService1) {
-        this.jwtService = jwtService;
-        this.customUserDetailsService = customUserDetailsService1;
-    }
+    @Autowired
+    private JWTUtils jwtUtils; // Sirve para manipular el token
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -32,15 +33,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = null;
         String token = null;
 
-        if(AUTHORIZATION_HEADER != null && AUTHORIZATION_HEADER.startsWith("Bearer ")){
+        if (AUTHORIZATION_HEADER != null && AUTHORIZATION_HEADER.startsWith("Bearer ")){
             token = AUTHORIZATION_HEADER.substring(7);
-            username = jwtService.extractUsername(token);
+            username = jwtUtils.extractUsername(token);
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            UserDetails userDetails = udService.loadUserByUsername(username);
 
-            if(jwtService.isTokenValid(token, userDetails)){
+            if (jwtUtils.validateToken(token, userDetails)){
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
