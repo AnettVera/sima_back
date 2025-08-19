@@ -262,7 +262,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getAvailableWarehouseManagers() {
         try {
-            List<BeanUser> users = userRepository.findByRolNameAndStorageIsNull("USER");
+            List<BeanUser> users = userRepository.findByRolNameAndStorageIsNullAndActiveTrue("USER");
             return ResponseEntity.ok(new APIResponse("Responsables disponibles", users, false, HttpStatus.OK));
         } catch (Exception e) {
             logger.error("Error al obtener responsables disponibles: {}", e.getMessage());

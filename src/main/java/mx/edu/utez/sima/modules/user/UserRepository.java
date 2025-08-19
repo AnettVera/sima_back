@@ -34,8 +34,8 @@ public interface UserRepository extends JpaRepository<BeanUser, Long> {
 
     List<BeanUser> findByActive(Boolean active);
 
-    @Query("SELECT u FROM BeanUser u WHERE u.rol.name = :rolName AND u.storage IS NULL")
-    List<BeanUser> findByRolNameAndStorageIsNull(@Param("rolName") String rolName);
+    @Query("SELECT u FROM BeanUser u WHERE u.rol.name = :rolName AND u.storage IS NULL AND u.active = true")
+    List<BeanUser> findByRolNameAndStorageIsNullAndActiveTrue(@Param("rolName") String rolName);
 
     @Query("SELECT u FROM BeanUser u WHERE u.storage IS NOT NULL")
     List<BeanUser> findByStorageIsNotNull();
