@@ -5,15 +5,28 @@ import mx.edu.utez.sima.modules.category.Category;
 public class ArticleDTO {
 
     private Long id;
+
     @NotBlank(message = "El nombre del artículo es obligatorio")
-    @Size(max = 100, message = "El nombre del artículo no puede exceder los 100 caracteres")
+    @Size(min = 3, max = 50, message = "El nombre del artículo debe tener entre 3 y 50 caracteres")
+    @Pattern(
+            regexp = "^[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+$",
+            message = "El nombre del artículo solo puede contener letras, espacios y acentos"
+    )
     private String articleName;
+
     @NotBlank(message = "La descripción es obligatoria")
-    @Size(max = 255, message = "La descripción no puede exceder los 255 caracteres")
+    @Size(min = 10, max = 50, message = "La descripción debe tener entre 10 y 50 caracteres")
+    @Pattern(
+            regexp = "^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9.,;:()\"'\\s-]+$",
+            message = "La descripción solo puede contener letras, números, acentos, espacios y puntuación básica"
+    )
     private String description;
+
     @NotNull(message = "La cantidad es obligatoria")
     @Min(value = 1, message = "La cantidad debe ser al menos 1")
+    @Digits(integer = 10, fraction = 0, message = "La cantidad debe tener hasta 10 dígitos sin decimales")
     private Long quantity;
+
 
     private Long category;
 
