@@ -3,11 +3,10 @@ package mx.edu.utez.sima.services;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import mx.edu.utez.sima.modules.Email.Emails;
-import mx.edu.utez.sima.utils.APIResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,8 @@ import org.thymeleaf.context.Context;
 
 @Service
 public class EmailService {
-
+    @Value("${email.username}")
+    private String FROM;
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
 
@@ -52,7 +52,7 @@ public class EmailService {
                     helper.setSubject("Notificación de SIMA");
             }
             helper.setText(htmlContent, true);
-            helper.setFrom("ultranet.sa.d.cv@gmail.com");
+            helper.setFrom(FROM);
             javaMailSender.send(message);
 
             log.info("Correo HTML enviado con éxito a {}", email.getDestinatario());
