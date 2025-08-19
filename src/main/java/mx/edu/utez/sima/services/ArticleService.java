@@ -231,17 +231,38 @@ public class ArticleService {
     @Transactional(readOnly = true)
     public ResponseEntity<APIResponse> getArticlesByUserByStorage(Long id) {
         try {
-            Optional<BeanUser> foundStorage = userRepository.findById(id);
-           List<Article> foundByStorage = articleRepository.findByStoragesId(foundStorage.get().getStorage().getId());
-            return ResponseEntity.ok(new APIResponse("Articulos Encontrados", foundByStorage, false, HttpStatus.OK));
+            // Verificar si el usuario existe
+            Optional<BeanUser> foundUser = userRepository.findById(id);
+            if (!foundUser.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new APIResponse("Usuario no encontrado", true, HttpStatus.NOT_FOUND));
+            }
 
-        }catch (Exception e){
-            log.error("Algo salio mal "+ e);
+            BeanUser user = foundUser.get();
+
+            // Verificar si el usuario tiene almacén asignado
+            if (user.getStorage() == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new APIResponse("El usuario no tiene almacén asignado", true, HttpStatus.NOT_FOUND));
+            }
+
+            Long storageId = user.getStorage().getId();
+            List<Article> foundByStorage = articleRepository.findByStoragesId(storageId);
+
+            // Verificar si se encontraron artículos
+            if (foundByStorage.isEmpty()) {
+                return ResponseEntity.ok(new APIResponse("Este almacén no tiene artículos por el momento",
+                        foundByStorage, false, HttpStatus.OK));
+            }
+
+            return ResponseEntity.ok(new APIResponse("Artículos encontrados",
+                    foundByStorage, false, HttpStatus.OK));
+
+        } catch (Exception e) {
+            log.error("Algo salió mal: " + e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new APIResponse("Error al encontarar los Aticulos", true, HttpStatus.INTERNAL_SERVER_ERROR));
-
+                    .body(new APIResponse("Error al encontrar los artículos", true, HttpStatus.INTERNAL_SERVER_ERROR));
         }
-
     }
 
     @Transactional(rollbackFor = Exception.class)
