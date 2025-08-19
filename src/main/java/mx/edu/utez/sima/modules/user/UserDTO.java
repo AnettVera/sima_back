@@ -1,27 +1,38 @@
 package mx.edu.utez.sima.modules.user;
 
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 
 public class UserDTO {
     private Long id;
     private String username;
 
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚÑñ][a-zA-ZáéíóúÁÉÍÓÚÑñ\\s]{2,}$", message = "Solamente se aceptan letras")
-    @NotNull(message = "Favor de ingresar los datos")
-    @NotBlank(message = "Favor de no dejar los datos en blanco")
+    @NotNull(message = "Favor de ingresar el nombre")
+    @NotBlank(message = "Favor de no dejar el nombre en blanco")
+    @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
+    @Pattern(
+            regexp = "^[a-zA-ZáéíóúÁÉÍÓÚÑñ\\s]+$",
+            message = "El nombre solo puede contener letras, espacios y acentos"
+    )
     private String name;
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚÑñ][a-zA-ZáéíóúÁÉÍÓÚÑñ\\s]{3,}$", message = "Solamente se aceptan letras")
-    @NotNull(message = "Favor de ingresar los datos")
-    @NotBlank(message = "Favor de no dejar los datos en blanco")
+
+    @NotNull(message = "Favor de ingresar el apellido")
+    @NotBlank(message = "Favor de no dejar el apellido en blanco")
+    @Size(min = 2, max = 50, message = "El apellido debe tener entre 2 y 50 caracteres")
+    @Pattern(
+            regexp = "^[a-zA-ZáéíóúÁÉÍÓÚÑñ\\s]+$",
+            message = "El apellido solo puede contener letras, espacios y acentos"
+    )
     private String lastName;
-    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Ingrensa un correo valido")
+
     @NotNull(message = "Favor de ingresar el correo")
-    @NotBlank(message = "Favor de no dejar los datos en blanco")
-    @Email
+    @NotBlank(message = "Favor de no dejar el correo en blanco")
+    @Size(max = 100, message = "El correo no puede exceder los 100 caracteres")
+    @Email(message = "Ingrese un correo válido")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+            message = "Ingrese un correo válido"
+    )
     private String email;
 
 

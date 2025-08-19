@@ -5,14 +5,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import mx.edu.utez.sima.services.CategoryService;
 import mx.edu.utez.sima.utils.APIResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/categories")
 @Tag(name = "Controlador de Categorías", description = "Operaciones relacionadas con el manejo de categorías")
+@Validated
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -27,7 +32,13 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "Categoría creada exitosamente"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    public ResponseEntity<APIResponse> createCategory(@Valid @RequestParam String category) {
+    public ResponseEntity<APIResponse> createCategory(
+            @RequestParam
+            @NotBlank(message = "El nombre de la categoría es obligatorio")
+            @Size(min = 2, max = 50, message = "La categoría debe tener entre 2 y 50 caracteres")
+            @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚÑñ\\s]+$", message = "La categoría solo puede contener letras, acentos y espacios")
+            String category
+    ) {
         return categoryService.createCategory(category);
     }
 
@@ -81,10 +92,20 @@ public class CategoryController {
             @ApiResponse(responseCode = "404", description = "Categoría no encontrada"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    public ResponseEntity<APIResponse> updateCategory(@PathVariable Long id, @RequestParam String categoryDetails) {
+    public ResponseEntity<APIResponse> updateCategory(
+            @PathVariable Long id,
+
+            @RequestParam
+            @NotBlank(message = "El nombre de la categoría es obligatorio")
+            @Size(min = 2, max = 50, message = "La categoría debe tener entre 2 y 50 caracteres")
+            @Pattern(
+                    regexp = "^[a-zA-ZáéíóúÁÉÍÓÚÑñ\\s]+$",
+                    message = "La categoría solo puede contener letras, acentos y espacios"
+            )
+            String categoryDetails
+    ) {
         return categoryService.updateCategory(id, categoryDetails);
     }
-
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar categoría", description = "Elimina una categoría según su ID")
     @ApiResponses(value = {
